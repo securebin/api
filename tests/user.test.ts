@@ -36,8 +36,6 @@ import {
     setupDatabase
 } from "./fixtures/db";
 
-jest.setTimeout(30000);
-
 beforeAll(async (done) => {
     await setupDatabase();
 

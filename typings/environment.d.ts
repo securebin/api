@@ -25,6 +25,11 @@ declare global {
              * The secret for hashing IP's in the database
              */
             HMAC_IP_SECRET: string;
+
+            /**
+             * The environment in which the application is running
+             */
+            ENVIRONMENT: "production" | "development" | "staging";
         }
     }
 }

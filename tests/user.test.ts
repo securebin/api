@@ -9,7 +9,7 @@ dotenv.config({
     path: path.join(__dirname, ".env")
 });
 
-import "../src/db/mongoose";
+import { mongoMemoryServer } from "../src/db/mongoose";
 
 import {
     pasteOneKey,
@@ -48,6 +48,7 @@ beforeAll(async (done) => {
 
 afterAll(async (done) => {
     await mongoose.disconnect();
+    await mongoMemoryServer.stop();
 
     done();
 });

@@ -31,5 +31,6 @@ jobs:
           CRYPTO_EMAIL_SECRET: ${{ secrets.CRYPTO_EMAIL_SECRET }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           HMAC_IP_SECRET: ${{ secrets.HMAC_IP_SECRET }}
+          ENVIRONMENT: staging
         run: |
           npm t

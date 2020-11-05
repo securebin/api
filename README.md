@@ -30,6 +30,7 @@ MONGODB_URI=mongodb://<ip>:<port>/<database>
 CRYPTO_EMAIL_SECRET=random_32_bytes_tring
 JWT_SECRET=random_jwt_secret
 HMAC_IP_SECRET=random_ip_hashing_secret
+ENVIRONMENT=production|development|staging
 ```
 
 **Note:** `CRYPTO_EMAIL_SECRET` *has* to be 32 bytes long to work

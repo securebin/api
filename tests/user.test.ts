@@ -5,6 +5,10 @@ import mongoose from "mongoose";
 import app from "../src/api";
 import { APIErrors } from "../src/utils/Constants";
 
+dotenv.config({
+    path: path.join(__dirname, ".env")
+});
+
 import { mongoMemoryServer } from "../src/db/mongoose";
 
 import {

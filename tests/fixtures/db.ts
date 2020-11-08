@@ -13,8 +13,8 @@ const userOne = new User({
 });
 
 const userOneSession = new Session({
-    token: jwt.sign({ id: userOne.id }, "wrrArofFCA4iRR9mAvRZaiELWd4dtwBs5yUUuSXHTXrmp2TSS5TWeRBjac3S7uXd"),
-    ipHash: HmacSHA512("0.0.0.0", "sRq36ksc4jV2xT8iPUhKcpXTqhstm3kCbGXdWTg75aLRNvZW6FkccJHCPF65JA3s").toString(),
+    token: jwt.sign({ id: userOne.id }, process.env.JWT_SECRET),
+    ipHash: HmacSHA512("0.0.0.0", process.env.HMAC_IP_SECRET).toString(),
     user: userOne.id,
     expiresAt: new Date(Date.now() + 1 * 60 * 60 * 24 * 7)
 });
@@ -28,8 +28,8 @@ const userTwo = new User({
 });
 
 const userTwoSession = new Session({
-    token: jwt.sign({ id: userTwo.id }, "wrrArofFCA4iRR9mAvRZaiELWd4dtwBs5yUUuSXHTXrmp2TSS5TWeRBjac3S7uXd"),
-    ipHash: HmacSHA512("0.0.0.0", "sRq36ksc4jV2xT8iPUhKcpXTqhstm3kCbGXdWTg75aLRNvZW6FkccJHCPF65JA3s").toString(),
+    token: jwt.sign({ id: userTwo.id }, process.env.JWT_SECRET),
+    ipHash: HmacSHA512("0.0.0.0", process.env.HMAC_IP_SECRET).toString(),
     user: userTwo.id,
     expiresAt: new Date(Date.now() + 1 * 60 * 60 * 24 * 7)
 });

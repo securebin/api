@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "tsc",
-    "start": "npm run compile && node dist",
+    "start": "npm run compile && node dist/src",
     "test": "npm run compile && jest --no-cache --ci --runInBand --detectOpenHandles"
   },
   "typings": "./index.d.ts",

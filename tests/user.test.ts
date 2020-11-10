@@ -12,21 +12,6 @@ dotenv.config({
 import { mongoMemoryServer } from "../src/db/mongoose";
 
 import {
-    pasteOneKey,
-    pasteOneKeyHash,
-    pasteOneContent,
-    pasteOneContentEncrypted,
-    pasteOne,
-    pasteTwoKey,
-    pasteTwoKeyHash,
-    pasteTwoContent,
-    pasteTwoContentEncrypted,
-    pasteTwo,
-    pasteThreeKey,
-    pasteThreeKeyHash,
-    pasteThreeContent,
-    pasteThreeContentEncrypted,
-    pasteThree,
     userOne,
     userOnePassword,
     userOneSession,

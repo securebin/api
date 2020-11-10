@@ -67,7 +67,7 @@ userSchema.methods.toJSON = function () {
     return userObject;
 }
 
-userSchema.methods.getEmail = async function() {
+userSchema.methods.getEmail = async function () {
     const document = this as IUserDocument;
     const email = await Email.findOne({ user: document.id });
 

@@ -255,7 +255,7 @@ describe("Account creation", function () {
             .post("/api/v1/auth/register")
             .send({
                 email: "sampleemail2",
-                username: "sample_uname!",
+                username: "sample_uname22",
                 password: "samplepassword"
             });
 

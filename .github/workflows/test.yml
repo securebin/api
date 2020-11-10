@@ -2,6 +2,7 @@ name: Build and test
 
 on:
   push:
+  pull_request:
     branches:
       - dev
       - master
@@ -26,11 +27,5 @@ jobs:
           npm run compile
 
       - name: Run tests
-        env:
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          CRYPTO_EMAIL_SECRET: ${{ secrets.CRYPTO_EMAIL_SECRET }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          HMAC_IP_SECRET: ${{ secrets.HMAC_IP_SECRET }}
-          ENVIRONMENT: staging
         run: |
           npm t

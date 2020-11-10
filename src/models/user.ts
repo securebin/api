@@ -1,13 +1,15 @@
-import crypto from "crypto";
 import HmacSHA512 from "crypto-js/hmac-sha512";
 import jwt from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
-import validator from "validator";
 import mongoose, { Schema, Model, Document } from "mongoose";
 import snowflake from "../utils/snowflake";
 import APIError from "../utils/APIError";
-import { APIErrors } from "../utils/Constants";
+import { encrypt, decrypt } from "../utils/emailEncryption";
 import Session, { ISessionDocument } from "./session";
+import { APIErrors } from "../utils/Constants";
+import validator from "validator";
+import { SHA256 } from "crypto-js";
+import Email from "./email";
 
 export interface IUserModel extends Model<IUserDocument> {
     findByCredentials(username: string, password: string): Promise<IUserDocument>;
@@ -38,9 +40,6 @@ const userSchema = new Schema({
         required: true,
         trim: true
     },
-    email_iv: {
-        type: Schema.Types.String
-    },
     username: {
         type: Schema.Types.String,
         unique: true,
@@ -68,6 +67,13 @@ userSchema.methods.toJSON = function () {
     return userObject;
 }
 
+userSchema.methods.getEmail = async function() {
+    const document = this as IUserDocument;
+    const email = await Email.findOne({ user: document.id });
+
+    return email.decryptEmail();
+}
+
 userSchema.statics.findByCredentials = async function (username: string, password: string) {
     if (!username || !password) {
         throw new APIError({ type: APIErrors.INVALID_FORM_BODY, error: "Wrong username or password" });
@@ -81,18 +87,6 @@ userSchema.statics.findByCredentials = async function (username: string, passwor
 
     return user;
 }
-
-// userSchema.methods.getEmail = function () {
-//     const document: IUserDocument = this as IUserDocument;
-
-//     const algorithm = "aes-256-ctr";
-//     const secret = process.env.CRYPTO_EMAIL_SECRET;
-
-//     const decipher = crypto.createDecipheriv(algorithm, secret, Buffer.from(document.email_iv, "hex"));
-//     const decrypted = Buffer.concat([decipher.update(Buffer.from(document.email, "hex")), decipher.final()]);
-
-//     return decrypted.toString();
-// }
 
 userSchema.methods.createSession = async function ({ ip }) {
     const user: IUserDocument = this as IUserDocument;
@@ -112,18 +106,6 @@ userSchema.methods.createSession = async function ({ ip }) {
 
 userSchema.pre("save", async function (next) {
     const document: IUserDocument = this as IUserDocument;
-
-    // const algorithm = "aes-256-ctr";
-    // const secret = process.env.CRYPTO_EMAIL_SECRET;
-    // const iv = crypto.randomBytes(16);
-
-    // if (document.isModified("email")) {
-    //     const cipher = crypto.createCipheriv(algorithm, secret, iv);
-    //     const encrypted = Buffer.concat([cipher.update(document.email), cipher.final()]);
-
-    //     document.email = encrypted.toString("hex");
-    //     document.email_iv = iv.toString("hex");
-    // }
 
     if (document.isModified("password")) {
         document.password = await bcryptjs.hash(document.password, 12);
@@ -147,20 +129,15 @@ userSchema.pre("validate", async function (next) {
         return next(new APIError({ type: APIErrors.INVALID_FORM_BODY, error: "Password is required" }));
     }
 
+    let emailDocument;
+
     if (document.isModified("email")) {
         const email = document.email.trim();
 
-        if (email.length > 2048) {
-            return next(new APIError({ type: APIErrors.INVALID_FORM_BODY, error: "Email must be 2048 or less in length" }));
-        }
-
-        if (!validator.isEmail(email)) {
-            return next(new APIError({ type: APIErrors.INVALID_FORM_BODY, error: "Invalid email" }));
-        }
-
-        if (await User.countDocuments({ email })) {
-            return next(new APIError({ type: APIErrors.INVALID_FORM_BODY, error: "That email is already in use" }));
-        }
+        emailDocument = new Email({
+            email: email,
+            user: document.id
+        });
     }
 
     if (document.isModified("username")) {
@@ -186,6 +163,8 @@ userSchema.pre("validate", async function (next) {
             return next(new APIError({ type: APIErrors.INVALID_FORM_BODY, error: "Password must be between 6 and 4096 in length" }));
         }
     }
+
+    await emailDocument.save();
 
     next();
 });

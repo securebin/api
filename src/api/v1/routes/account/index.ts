@@ -13,7 +13,7 @@ router.get("/email", authenticate({ required: true }), async (req, res) => {
     const user = req.user;
 
     res.send({
-        email: user.getEmail()
+        email: await user.getEmail()
     });
 });
 

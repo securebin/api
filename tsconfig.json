@@ -23,10 +23,10 @@
     "include": [
         "src/**/*",
         "typings/environment.d.ts",
-        "typings/express.d.ts",
-        "tests/**/*"
+        "typings/express.d.ts"
     ],
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "tests"
     ]
 }

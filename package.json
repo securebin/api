@@ -4,11 +4,10 @@
   "description": "Securebin is an open-source encrypted Pastebin, where the data you paste completely secret, and can only be viewed with a password",
   "main": "index.js",
   "scripts": {
-    "compile": "tsc",
+    "compile": "tsc --rootDir .",
     "start": "npm run compile && node dist/src",
     "test": "npm run compile && jest --no-cache --ci --runInBand --detectOpenHandles"
   },
-  "typings": "./index.d.ts",
   "author": "chris9740",
   "license": "ISC",
   "dependencies": {

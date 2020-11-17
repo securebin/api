@@ -1,15 +1,12 @@
 import HmacSHA512 from "crypto-js/hmac-sha512";
+import validator from "validator";
 import jwt from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
 import mongoose, { Schema, Model, Document } from "mongoose";
 import snowflake from "../utils/snowflake";
 import APIError from "../utils/APIError";
-import { encrypt, decrypt } from "../utils/emailEncryption";
 import Session, { ISessionDocument } from "./session";
 import { APIErrors } from "../utils/Constants";
-import validator from "validator";
-import { SHA256 } from "crypto-js";
-import Email from "./email";
 
 export interface IUserModel extends Model<IUserDocument> {
     findByCredentials(username: string, password: string): Promise<IUserDocument>;
@@ -18,12 +15,10 @@ export interface IUserModel extends Model<IUserDocument> {
 export interface IUserDocument extends Document {
     id: string;
     email: string;
-    email_iv: string;
     username: string;
     password: string;
     createdAt: Date;
     updatedAt: Date;
-    getEmail(): string;
     createSession({ ip }: { ip: string }): Promise<ISessionDocument>;
 }
 
@@ -34,17 +29,14 @@ const userSchema = new Schema({
         required: true,
         default: () => snowflake.generate()
     },
-    email: {
-        type: Schema.Types.String,
-        unique: true,
-        required: true,
-        trim: true
-    },
     username: {
         type: Schema.Types.String,
         unique: true,
         required: true,
         trim: true
+    },
+    email: {
+        type: Schema.Types.String
     },
     password: {
         type: Schema.Types.String,
@@ -60,18 +52,9 @@ userSchema.methods.toJSON = function () {
     const userDocument = this as IUserDocument;
     const userObject = userDocument.toObject() as IUserDocument;
 
-    delete userObject.email;
-    delete userObject.email_iv;
     delete userObject.password;
 
     return userObject;
-}
-
-userSchema.methods.getEmail = async function () {
-    const document = this as IUserDocument;
-    const email = await Email.findOne({ user: document.id });
-
-    return email.decryptEmail();
 }
 
 userSchema.statics.findByCredentials = async function (username: string, password: string) {
@@ -129,15 +112,20 @@ userSchema.pre("validate", async function (next) {
         return next(new APIError({ type: APIErrors.INVALID_FORM_BODY, error: "Password is required" }));
     }
 
-    let emailDocument;
-
     if (document.isModified("email")) {
         const email = document.email.trim();
 
-        emailDocument = new Email({
-            email: email,
-            user: document.id
-        });
+        if (await User.countDocuments({ email })) {
+            return next(new APIError({ type: APIErrors.INVALID_FORM_BODY, error: "That email is already in use" }));
+        }
+
+        if (!validator.isEmail(email)) {
+            return next(new APIError({ type: APIErrors.INVALID_FORM_BODY, error: "Invalid email" }));
+        }
+
+        if (email.length > 254) {
+            return next(new APIError({ type: APIErrors.INVALID_FORM_BODY, error: "Email can't be longer than 254 in length" }));
+        }
     }
 
     if (document.isModified("username")) {
@@ -163,8 +151,6 @@ userSchema.pre("validate", async function (next) {
             return next(new APIError({ type: APIErrors.INVALID_FORM_BODY, error: "Password must be between 6 and 72 in length" }));
         }
     }
-
-    await emailDocument.save();
 
     next();
 });

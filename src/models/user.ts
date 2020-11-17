@@ -159,8 +159,8 @@ userSchema.pre("validate", async function (next) {
     if (document.isModified("password")) {
         const password = document.password.trim();
 
-        if (password.length < 6 || password.length > 4096) {
-            return next(new APIError({ type: APIErrors.INVALID_FORM_BODY, error: "Password must be between 6 and 4096 in length" }));
+        if (password.length < 6 || password.length > 72) {
+            return next(new APIError({ type: APIErrors.INVALID_FORM_BODY, error: "Password must be between 6 and 72 in length" }));
         }
     }
 

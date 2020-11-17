@@ -9,12 +9,4 @@ router.get("/", authenticate({ required: true }), async (req, res) => {
     res.send({ user });
 });
 
-router.get("/email", authenticate({ required: true }), async (req, res) => {
-    const user = req.user;
-
-    res.send({
-        email: await user.getEmail()
-    });
-});
-
 export default router;
